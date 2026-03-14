@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'third_party_api' => [
+        'key' => env('THIRD_PARTY_API_KEY'),
+        'url' => env('THIRD_PARTY_API_URL'),
+    ],
+
 ];
