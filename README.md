@@ -1,37 +1,17 @@
-# IT15-L Enrollment System (Backend)
+## IT15-L Backend
 
-Laravel 12 REST API for student enrollment, courses, dashboard analytics, and authentication.
+This document provides:
 
-## Project Overview
+1. Detailed README.md with setup instructions
+2. .env.example file with required environment variables
+3. API documentation (endpoints and expected responses)
 
-This backend provides:
+## Backend Setup
 
-- Authentication using Laravel Sanctum
-- Student, Course, Enrollment, and School Day APIs
-- Dashboard analytics and reporting endpoints
-- Database seeders for demo data
-
-## Tech Stack
-
-- PHP 8.2+
-- Laravel 12
-- Laravel Sanctum
-- MySQL (recommended) or PostgreSQL
-- Composer
-
-## Prerequisites
-
-Install the following before setup:
-
-- PHP 8.2 or newer
-- Composer 2+
-- MySQL 8+ (or PostgreSQL)
-
-## Quick Start
-
-Run these commands from this backend folder:
+Run these commands in order:
 
 ```bash
+cd laravel-backend
 composer install
 cp .env.example .env
 php artisan key:generate
@@ -39,68 +19,49 @@ php artisan migrate --seed
 php artisan serve
 ```
 
-Backend will run at:
+After running, backend should be available at:
 
 ```text
 http://127.0.0.1:8000
 ```
 
-## Environment Configuration
-
-`.env.example` is included and contains required variable names.
-
-Important variables:
-
-- `APP_URL`
-- `DB_CONNECTION`
-- `DB_HOST`
-- `DB_PORT`
-- `DB_DATABASE`
-- `DB_USERNAME`
-- `DB_PASSWORD`
-- `FORCE_HTTPS`
-- `REQUIRE_HTTPS_FOR_API`
-- `SANCTUM_TOKEN_EXPIRATION`
-
-## API Authentication
-
-Default seeded admin account:
-
-- Email: `admin@example.com`
-- Password: `admin12345`
-
-Login endpoint:
-
-```text
-POST /api/login
-```
-
-Use the returned bearer token for protected endpoints.
-
-## API Endpoint Groups
-
-All routes are registered in `routes/api.php`.
-
-- Authentication: `/login`, `/logout`, `/me`
-- Dashboard and reports: `/dashboard`, `/dashboard/summary`, `/dashboard/trends`, `/dashboard/calendar`, `/enrollments/pipeline`, `/reports/cards`
-- Students (REST): `/students`
-- Courses (REST): `/courses`
-- Enrollments: `/enrollments`
-- School Days (REST): `/school-days`
-
-## API Documentation (Endpoints and Expected Responses)
-
-Base URL:
+API base URL:
 
 ```text
 http://127.0.0.1:8000/api
 ```
 
+## .env.example Required Environment Variables
+
+Make sure these required variables are present in `.env.example` and configured in `.env`:
+
+```env
+APP_NAME=Laravel
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=herrera_backend
+DB_USERNAME=root
+DB_PASSWORD=
+
+SANCTUM_TOKEN_EXPIRATION=120
+FRONTEND_URL=http://localhost:5173
+FORCE_HTTPS=false
+REQUIRE_HTTPS_FOR_API=false
+```
+
+## API Documentation
+
+Auth required for all endpoints except `/login`.
+
 ### Authentication
 
-1. POST /login
-- Auth required: No
-- Purpose: Authenticate user and issue Sanctum token.
+1. `POST /api/login`
 - Request body:
 
 ```json
@@ -118,13 +79,8 @@ http://127.0.0.1:8000/api
 	"success": true,
 	"message": "Login successful.",
 	"user": { "id": 1, "email": "admin@example.com" },
-	"token": "1|plain-text-token",
-	"token_type": "Bearer",
-	"data": {
-		"user": { "id": 1, "email": "admin@example.com" },
-		"token": "1|plain-text-token",
-		"token_type": "Bearer"
-	}
+	"token": "1|token...",
+	"token_type": "Bearer"
 }
 ```
 
@@ -140,9 +96,7 @@ http://127.0.0.1:8000/api
 }
 ```
 
-2. POST /logout
-- Auth required: Yes (Bearer token)
-- Purpose: Revoke current access token.
+2. `POST /api/logout`
 - Success response (200):
 
 ```json
@@ -153,9 +107,7 @@ http://127.0.0.1:8000/api
 }
 ```
 
-3. GET /me
-- Auth required: Yes (Bearer token)
-- Purpose: Return authenticated user profile.
+3. `GET /api/me`
 - Success response (200):
 
 ```json
@@ -168,26 +120,22 @@ http://127.0.0.1:8000/api
 
 ### Dashboard and Reports
 
-All endpoints in this section require Bearer token authentication.
-
-1. GET /dashboard
-- Purpose: Frontend dashboard payload (cards, trends, distributions, activities).
+1. `GET /api/dashboard`
 - Success response (200):
 
 ```json
 {
-	"stats": [{ "label": "Students Enrolled", "value": 120, "trend": "Current academic year" }],
-	"enrollmentTrend": [{ "month": "Jan", "enrollees": 20 }],
-	"programDistribution": [{ "name": "Computer Science", "value": 45 }],
-	"attendancePatterns": [{ "day": "Mar 10", "attendance": 94.5 }],
-	"capacityData": [{ "code": "CS101", "slots": 50, "enrolled": 34 }],
-	"recentEnrollments": [{ "id": 1, "student": "Juan Dela Cruz", "program": "Computer Science", "year": 2, "status": "enrolled" }],
-	"activities": [{ "id": 1, "title": "Department Meeting", "description": "Event", "time": "Mar 15, 2026" }]
+	"stats": [],
+	"enrollmentTrend": [],
+	"programDistribution": [],
+	"attendancePatterns": [],
+	"capacityData": [],
+	"recentEnrollments": [],
+	"activities": []
 }
 ```
 
-2. GET /dashboard/summary
-- Purpose: Summary metrics for dashboard cards.
+2. `GET /api/dashboard/summary`
 - Success response (200):
 
 ```json
@@ -197,16 +145,15 @@ All endpoints in this section require Bearer token authentication.
 	"data": {
 		"students_enrolled": 120,
 		"courses_offered": 30,
-		"active_courses": 27,
+		"active_courses": 28,
 		"today_attendance_rate": 95.2,
-		"average_attendance_rate": 93.75,
+		"average_attendance_rate": 93.4,
 		"events_this_month": 4
 	}
 }
 ```
 
-3. GET /dashboard/trends
-- Purpose: Enrollment, attendance, and department trend breakdown.
+3. `GET /api/dashboard/trends`
 - Success response (200):
 
 ```json
@@ -214,29 +161,26 @@ All endpoints in this section require Bearer token authentication.
 	"success": true,
 	"message": "Dashboard trends loaded successfully.",
 	"data": {
-		"enrollment_trend": [{ "month": "2026-03", "total": 20 }],
-		"attendance_trend": [{ "month": "2026-03", "average_attendance": 93.2 }],
-		"department_breakdown": [{ "department": "Computer Science", "total": 45 }]
+		"enrollment_trend": [],
+		"attendance_trend": [],
+		"department_breakdown": []
 	}
 }
 ```
 
-4. GET /dashboard/calendar
-- Purpose: Calendar entries with optional filters.
-- Query params: from, to, day_type (class_day | holiday | event)
+4. `GET /api/dashboard/calendar?from=2026-03-01&to=2026-03-31&day_type=event`
 - Success response (200):
 
 ```json
 {
 	"success": true,
 	"message": "Calendar data loaded successfully.",
-	"data": [{ "id": 1, "date": "2026-03-15", "day_type": "event" }],
+	"data": [],
 	"meta": { "from": "2026-03-01", "to": "2026-03-31" }
 }
 ```
 
-5. GET /enrollments/pipeline
-- Purpose: Enrollment pipeline stages for charts.
+5. `GET /api/enrollments/pipeline`
 - Success response (200):
 
 ```json
@@ -244,139 +188,56 @@ All endpoints in this section require Bearer token authentication.
 	{ "stage": "Applied", "count": 120 },
 	{ "stage": "Document Check", "count": 90 },
 	{ "stage": "For Interview", "count": 48 },
-	{ "stage": "Approved", "count": 85 }
+	{ "stage": "Approved", "count": 40 }
 ]
 ```
 
-6. GET /reports/cards
-- Purpose: KPI cards for reporting panel.
+6. `GET /api/reports/cards`
 - Success response (200):
 
 ```json
 [
 	{ "label": "Average Processing Time", "value": "1.8 days" },
-	{ "label": "System Uptime", "value": "99.4%" },
-	{ "label": "Retention Projection", "value": "92.1%" },
+	{ "label": "System Uptime", "value": "99.3%" },
+	{ "label": "Retention Projection", "value": "88.2%" },
 	{ "label": "At-Risk Students", "value": "6" }
 ]
 ```
 
-### Students
-
-All endpoints in this section require Bearer token authentication.
-
-1. GET /students
-- Purpose: List students with optional filtering, sorting, and pagination.
-- Query params: search, department, status, gender, year_level, sort_by, sort_dir, per_page, with_meta
-- Success response (200, default without metadata):
-
-```json
-[
-	{ "id": 1, "name": "Juan Dela Cruz", "program": "Computer Science", "year": 2, "status": "enrolled" }
-]
-```
-
-2. GET /students?with_meta=1
-- Purpose: Return full records with pagination metadata.
-- Success response (200):
-
-```json
-{
-	"success": true,
-	"message": "Students retrieved successfully.",
-	"data": [{ "id": 1, "student_number": "S000001" }],
-	"meta": { "current_page": 1, "per_page": 15, "total": 120, "last_page": 8 }
-}
-```
-
-3. POST /students
-- Purpose: Create a new student.
-- Success response (201):
-
-```json
-{
-	"success": true,
-	"message": "Student created successfully.",
-	"data": { "id": 121, "student_number": "S000121" }
-}
-```
-
-4. GET /students/{id}
-- Purpose: Get one student with enrolled courses.
-
-5. PUT/PATCH /students/{id}
-- Purpose: Update student.
-
-6. DELETE /students/{id}
-- Purpose: Delete student.
-
-### Courses
-
-All endpoints in this section require Bearer token authentication.
-
-1. GET /courses
-- Purpose: List courses.
-- Query params: student_id, search, department, is_active, sort_by, sort_dir, per_page, with_meta
-- Note: If student_id is provided, only courses matching the selected student's department are returned.
-- Success response (200, default without metadata):
-
-```json
-[
-	{ "code": "CS101", "title": "Intro to Computing", "slots": 50, "enrolled": 35 }
-]
-```
-
-2. GET /courses?with_meta=1
-- Success response (200):
-
-```json
-{
-	"success": true,
-	"message": "Courses retrieved successfully.",
-	"data": [{ "id": 1, "course_code": "CS101" }],
-	"meta": { "current_page": 1, "per_page": 15, "total": 30, "last_page": 2 }
-}
-```
-
-3. POST /courses
-- Purpose: Create a new course.
-- Success response (201):
-
-```json
-{
-	"success": true,
-	"message": "Course created successfully.",
-	"data": { "id": 31, "course_code": "CS205" }
-}
-```
-
-4. GET /courses/{id}
-- Purpose: Get one course with enrolled students.
-
-5. PUT/PATCH /courses/{id}
-- Purpose: Update course.
-
-6. DELETE /courses/{id}
-- Purpose: Delete course.
-
 ### Enrollments
 
-All endpoints in this section require Bearer token authentication.
-
-1. GET /enrollments
-- Purpose: List students with their enrolled courses.
+1. `GET /api/enrollments`
 - Success response (200):
 
 ```json
 {
 	"success": true,
 	"message": "Enrollments retrieved successfully.",
-	"data": [{ "id": 1, "student_number": "S000001", "courses": [{ "id": 1, "course_code": "CS101" }] }]
+	"data": []
 }
 ```
 
-2. POST /enrollments
-- Purpose: Enroll a student in a course.
+2. `GET /api/enrollments/status-summary`
+- Success response (200):
+
+```json
+{
+	"success": true,
+	"message": "Enrollment status summary retrieved successfully.",
+	"data": {
+		"total_students": 100,
+		"enrolled": 60,
+		"pending": 20,
+		"approved": 10,
+		"for_review": 5,
+		"probation": 2,
+		"rejected": 2,
+		"dropped": 1
+	}
+}
+```
+
+3. `POST /api/enrollments`
 - Request body:
 
 ```json
@@ -396,12 +257,7 @@ All endpoints in this section require Bearer token authentication.
 }
 ```
 
-- Common error responses:
-	- 422 for department mismatch or capacity reached
-	- 409 for duplicate enrollment
-
-3. DELETE /enrollments
-- Purpose: Remove an enrollment.
+4. `DELETE /api/enrollments`
 - Request body:
 
 ```json
@@ -421,52 +277,76 @@ All endpoints in this section require Bearer token authentication.
 }
 ```
 
-### School Days
+### Students (REST)
 
-All endpoints in this section require Bearer token authentication.
+- `GET /api/students`
+- `POST /api/students`
+- `GET /api/students/{id}`
+- `PUT /api/students/{id}`
+- `DELETE /api/students/{id}`
 
-1. GET /school-days
-- Purpose: List school day records with optional date and type filters.
-
-2. POST /school-days
-- Purpose: Create school day or event record.
-
-3. GET /school-days/{id}
-- Purpose: View one school day record.
-
-4. PUT/PATCH /school-days/{id}
-- Purpose: Update school day record.
-
-5. DELETE /school-days/{id}
-- Purpose: Delete school day record.
-
-General success response format (for most CRUD endpoints):
+Expected success format for create/update/show:
 
 ```json
 {
 	"success": true,
-	"message": "Operation completed successfully.",
+	"message": "Student created successfully.",
 	"data": {}
 }
 ```
 
-General validation error format (422):
+### Courses (REST)
+
+- `GET /api/courses`
+- `POST /api/courses`
+- `GET /api/courses/{id}`
+- `PUT /api/courses/{id}`
+- `DELETE /api/courses/{id}`
+
+Expected success format for create/update/show:
 
 ```json
 {
-	"message": "The given data was invalid.",
-	"errors": {
-		"field_name": ["Validation message"]
-	}
+	"success": true,
+	"message": "Course created successfully.",
+	"data": {}
 }
 ```
 
-## Useful Commands
+### School Days (REST)
 
-```bash
-php artisan test
-php artisan db:seed
-php artisan route:list
+- `GET /api/school-days`
+- `POST /api/school-days`
+- `GET /api/school-days/{id}`
+- `PUT /api/school-days/{id}`
+- `DELETE /api/school-days/{id}`
+
+Expected success format:
+
+```json
+{
+	"success": true,
+	"message": "School day retrieved successfully.",
+	"data": {}
+}
+```
+
+### Announcements (REST)
+
+- `GET /api/announcements`
+- `POST /api/announcements`
+- `GET /api/announcements/{id}`
+- `PUT /api/announcements/{id}`
+- `DELETE /api/announcements/{id}`
+
+Expected success format:
+
+```json
+{
+	"success": true,
+	"message": "Announcement retrieved successfully.",
+	"data": {}
+}
 ```
 
 
