@@ -9,6 +9,29 @@ use Illuminate\Http\Request;
 
 class EnrollmentController extends Controller
 {
+    public function statusSummary(): JsonResponse
+    {
+        $grouped = Student::query()
+            ->selectRaw('LOWER(status) as status_key, COUNT(*) as total')
+            ->groupBy('status_key')
+            ->pluck('total', 'status_key');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Enrollment status summary retrieved successfully.',
+            'data' => [
+                'total_students' => (int) Student::query()->count(),
+                'enrolled' => (int) ($grouped['enrolled'] ?? 0),
+                'pending' => (int) ($grouped['pending'] ?? 0),
+                'approved' => (int) ($grouped['approved'] ?? 0),
+                'for_review' => (int) (($grouped['forreview'] ?? 0) + ($grouped['for_review'] ?? 0)),
+                'probation' => (int) ($grouped['probation'] ?? 0),
+                'rejected' => (int) ($grouped['rejected'] ?? 0),
+                'dropped' => (int) ($grouped['dropped'] ?? 0),
+            ],
+        ]);
+    }
+
     public function index(): JsonResponse
     {
         $rows = Student::query()

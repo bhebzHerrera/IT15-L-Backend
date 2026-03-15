@@ -61,18 +61,31 @@ class DashboardController extends Controller
             ->orderByDesc('value')
             ->get();
 
-        $attendancePatterns = SchoolDay::query()
+        $today = \Carbon\Carbon::now();
+        $seasonStartYear = $today->month <= 3 ? $today->year - 1 : $today->year;
+        $seasonStart = \Carbon\Carbon::create($seasonStartYear, 12, 1)->startOfDay();
+        $seasonEnd = $seasonStart->copy()->addMonths(3)->endOfMonth();
+
+        $attendanceRows = SchoolDay::query()
             ->where('day_type', 'class_day')
             ->whereNotNull('attendance_rate')
-            ->orderByDesc('date')
-            ->limit(10)
-            ->get(['date', 'attendance_rate'])
-            ->reverse()
-            ->values()
-            ->map(fn (SchoolDay $day): array => [
-                'day' => $day->date->format('M d'),
-                'attendance' => (float) $day->attendance_rate,
-            ]);
+            ->whereBetween('date', [$seasonStart->toDateString(), $seasonEnd->toDateString()])
+            ->orderBy('date')
+            ->get(['date', 'attendance_rate']);
+
+        if ($attendanceRows->isEmpty()) {
+            $attendanceRows = SchoolDay::query()
+                ->where('day_type', 'class_day')
+                ->whereNotNull('attendance_rate')
+                ->whereBetween('date', [$today->copy()->subDays(120)->toDateString(), $today->toDateString()])
+                ->orderBy('date')
+                ->get(['date', 'attendance_rate']);
+        }
+
+        $attendancePatterns = $attendanceRows->values()->map(fn (SchoolDay $day): array => [
+            'day' => $day->date->format('M d'),
+            'attendance' => (float) $day->attendance_rate,
+        ]);
 
         $recentEnrollments = Student::query()
             ->orderByDesc('created_at')

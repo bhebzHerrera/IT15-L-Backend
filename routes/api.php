@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EnrollmentController;
@@ -20,6 +21,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/dashboard/trends', [DashboardController::class, 'trends']);
     Route::get('/dashboard/calendar', [DashboardController::class, 'calendar']);
     Route::get('/enrollments', [EnrollmentController::class, 'index']);
+    Route::get('/enrollments/status-summary', [EnrollmentController::class, 'statusSummary']);
     Route::post('/enrollments', [EnrollmentController::class, 'store']);
     Route::delete('/enrollments', [EnrollmentController::class, 'destroy']);
     Route::get('/enrollments/pipeline', [MetricsController::class, 'enrollmentPipeline']);
@@ -28,4 +30,5 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::apiResource('students', StudentController::class);
     Route::apiResource('courses', CourseController::class);
     Route::apiResource('school-days', SchoolDayController::class);
+    Route::apiResource('announcements', AnnouncementController::class);
 });
